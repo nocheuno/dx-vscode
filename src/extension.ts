@@ -108,12 +108,6 @@ export function activate(context: vscode.ExtensionContext) {
 			fileExplorer.refresh();
 			jobExplorer.refresh();
 		}
-		// Register commands for file explorer
-		context.subscriptions.push(			// vscode.commands.registerCommand('dxFileExplorer.openFile', (node) => fileExplorer.openFile(node)),
-			vscode.commands.registerCommand('dxFileExplorer.describeFile', (node) => fileExplorer.describeFile(node)),
-			vscode.commands.registerCommand('dxFileExplorer.previewFile', (node) => fileExplorer.previewFile(node)),
-			vscode.commands.registerCommand('dxFileExplorer.refresh', () => fileExplorer.refresh())
-		);
 	} catch (error) {
 		console.error("Error initializing explorers:", error);
 		vscode.window.showErrorMessage("Failed to initialize DNAnexus explorers");
