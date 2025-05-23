@@ -1,0 +1,418 @@
+{
+	"name": "dx-vscode",
+	"displayName": "DNAnexus VSCode Plugin",
+	"description": "A plugin for the DNAnexus platform that provides a file explorer, job explorer, and app explorer. Requires the DNAnexus DX CLI tool from the dxpy package.",
+	"version": "0.0.1",
+	"author": "ddcech",
+	"private": true,
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.74.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/nocheuno/dx-vscode"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onLanguage:json",
+		"onLanguage:jsonc",
+		"onView:projectSelector",
+		"onCommand:projectSelector.selectProject"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"configuration": {
+			"title": "DNAnexus",
+			"properties": {
+				"dx-vscode.cliPath": {
+					"type": "string",
+					"default": "",
+					"description": "Path to the DNAnexus CLI executable (dx). If not specified, the extension will attempt to find it automatically."
+				}
+			}
+		},
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "dnanexus-explorer",
+					"title": "DNAnexus Explorer",
+					"icon": "media/dep.svg"
+				}
+			]
+		},
+		"views": {
+			"dnanexus-explorer": [
+				{
+					"id": "projectSelector",
+					"name": "Project Selector",
+					"icon": "resources/light/folder.svg",
+					"contextualTitle": "DNAnexus Projects"
+				},
+				{
+					"id": "dxFileExplorer",
+					"name": "DNAnexus File Explorer",
+					"icon": "media/dep.svg",
+					"contextualTitle": "DNAnexus Files"
+				},
+				{
+					"id": "dxJobExplorer",
+					"name": "DNAnexus Jobs",
+					"icon": "media/zap.svg",
+					"contextualTitle": "DNAnexus Jobs"
+				},
+				{
+					"id": "dxAppExplorer",
+					"name": "DNAnexus Apps",
+					"icon": "media/dep.svg",
+					"contextualTitle": "DNAnexus Apps"
+				}
+			],
+			"package-explorer": [
+				{
+					"id": "nodeDependencies",
+					"name": "Node Dependencies",
+					"icon": "media/dep.svg",
+					"contextualTitle": "Package Explorer"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "dx-vscode.checkEnvironment",
+				"title": "Check DNAnexus Environment",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "dxFileExplorer.refresh",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "projectSelector.refresh",
+				"title": "Refresh Projects",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "projectSelector.selectProject",
+				"title": "Select Project"
+			},
+			{
+				"command": "projectSelector.addProject",
+				"title": "Add Project",
+				"icon": {
+					"light": "resources/light/plus.svg",
+					"dark": "resources/dark/plus.svg"
+				}
+			},
+			{
+				"command": "dxJobExplorer.refresh",
+				"title": "Refresh Jobs",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "dxJobExplorer.terminateJob",
+				"title": "Terminate Job",
+				"icon": {
+					"light": "resources/light/x.svg",
+					"dark": "resources/dark/x.svg"
+				}
+			},
+			{
+				"command": "dxJobExplorer.rerunJob",
+				"title": "Rerun Job",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "dxJobExplorer.openExternal",
+				"title": "Open in Browser",
+				"icon": {
+					"light": "resources/light/globe.svg",
+					"dark": "resources/dark/globe.svg"
+				}
+			},
+			{
+				"command": "dxJobExplorer.describeJob",
+				"title": "Describe Job",
+				"icon": {
+					"light": "resources/light/document.svg",
+					"dark": "resources/dark/document.svg"
+				}
+			},
+			{
+				"command": "dxJobExplorer.watchJob",
+				"title": "Watch Job in Terminal",
+				"icon": {
+					"light": "resources/light/zap.svg",
+					"dark": "resources/dark/zap.svg"
+				}
+			},
+			{
+				"command": "dxJobExplorer.sshJob",
+				"title": "SSH into Job",
+				"icon": {
+					"light": "resources/light/terminal.svg",
+					"dark": "resources/dark/terminal.svg"
+				}
+			},
+			{
+				"command": "dxAppExplorer.refresh",
+				"title": "Refresh Apps",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "dxAppExplorer.openApp",
+				"title": "Open App Details",
+				"icon": {
+					"light": "resources/light/document.svg",
+					"dark": "resources/dark/document.svg"
+				}
+			},
+			{
+				"command": "dxAppExplorer.createTemplate",
+				"title": "Create Run Template",
+				"icon": {
+					"light": "resources/light/plus.svg",
+					"dark": "resources/dark/plus.svg"
+				}
+			},
+			{
+				"command": "dxAppExplorer.editTemplate",
+				"title": "Edit Template",
+				"icon": {
+					"light": "resources/light/edit.svg",
+					"dark": "resources/dark/edit.svg"
+				}
+			},
+			{
+				"command": "dxAppExplorer.deleteTemplate",
+				"title": "Delete Template",
+				"icon": {
+					"light": "resources/light/x.svg",
+					"dark": "resources/dark/x.svg"
+				}
+			},
+			{
+				"command": "dxAppExplorer.runTemplate",
+				"title": "Run Template",
+				"icon": {
+					"light": "resources/light/play.svg",
+					"dark": "resources/dark/play.svg"
+				}
+			},
+			{
+				"command": "dxFileExplorer.copyFileDxid",
+				"title": "Copy File DXID",
+				"icon": {
+					"light": "resources/light/document.svg",
+					"dark": "resources/dark/document.svg"
+				}
+			},
+			{
+				"command": "dxFileExplorer.deleteItems",
+				"title": "Delete Selected",
+				"icon": {
+					"light": "resources/light/x.svg",
+					"dark": "resources/dark/x.svg"
+				}
+			},
+			{
+				"command": "dxFileExplorer.mkdir",
+				"title": "New folder...",
+				"icon": {
+					"light": "resources/light/plus.svg",
+					"dark": "resources/dark/plus.svg"
+				}
+			},
+			{
+				"command": "dxFileExplorer.describeFile",
+				"title": "Describe File",
+				"icon": {
+					"light": "resources/light/document.svg",
+					"dark": "resources/dark/document.svg"
+				}
+			},				{
+					"command": "dxFileExplorer.previewFile",
+					"title": "Download and Preview",
+					"icon": {
+						"light": "resources/light/play.svg",
+						"dark": "resources/dark/play.svg"
+					}
+				}
+		],
+		"menus": {
+			"explorer/context": [
+				{
+					"command": "dxFileExplorer.mkdir",
+					"when": "viewItem =~ /^folder$|^workspaceFolder$|^directory$/",
+					"group": "2_workspace"
+				}
+			],
+			"editor/title": [
+				{
+					"command": "dxFileExplorer.previewFile",
+					"when": "resourceFilename == file-describe.json",
+					"group": "navigation"
+				}
+			],
+			"view/title": [
+				{
+					"command": "dxFileExplorer.refresh",
+					"when": "view == dxFileExplorer",
+					"group": "navigation"
+				},
+				{
+					"command": "projectSelector.refresh",
+					"when": "view == projectSelector",
+					"group": "navigation"
+				},
+				{
+					"command": "projectSelector.addProject",
+					"when": "view == projectSelector",
+					"group": "navigation"
+				},
+				{
+					"command": "dxJobExplorer.refresh",
+					"when": "view == dxJobExplorer",
+					"group": "navigation"
+				},
+				{
+					"command": "dxAppExplorer.refresh",
+					"when": "view == dxAppExplorer",
+					"group": "navigation"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "dxJobExplorer.terminateJob",
+					"when": "view == dxJobExplorer && viewItem == job-running",
+					"group": "inline"
+				},
+				{
+					"command": "dxJobExplorer.rerunJob",
+					"when": "view == dxJobExplorer && (viewItem == job-completed || viewItem == job-terminated)",
+					"group": "inline"
+				},
+				{
+					"command": "dxJobExplorer.openExternal",
+					"when": "view == dxJobExplorer && viewItem == job-running",
+					"group": "inline"
+				},
+				{
+					"command": "dxJobExplorer.describeJob",
+					"when": "view == dxJobExplorer && viewItem =~ /^job-/",
+					"group": "inline"
+				},
+				{
+					"command": "dxJobExplorer.watchJob",
+					"when": "view == dxJobExplorer && viewItem =~ /^job-/",
+					"group": "inline"
+				},
+				{
+					"command": "dxJobExplorer.sshJob",
+					"when": "view == dxJobExplorer && viewItem =~ /^job-/",
+					"group": "inline"
+				},
+				{
+					"command": "dxAppExplorer.openApp",
+					"when": "view == dxAppExplorer && viewItem == app",
+					"group": "inline"
+				},
+				{
+					"command": "dxAppExplorer.createTemplate",
+					"when": "view == dxAppExplorer && viewItem == app",
+					"group": "inline"
+				},
+				{
+					"command": "dxAppExplorer.editTemplate",
+					"when": "view == dxAppExplorer && viewItem == template",
+					"group": "inline"
+				},
+				{
+					"command": "dxAppExplorer.runTemplate",
+					"when": "view == dxAppExplorer && viewItem == template",
+					"group": "inline"
+				},
+				{
+					"command": "dxAppExplorer.deleteTemplate",
+					"when": "view == dxAppExplorer && viewItem == template",
+					"group": "inline"
+				},
+				{
+					"command": "dxFileExplorer.previewFile",
+					"when": "view == dxFileExplorer && viewItem == file",
+					"group": "inline"
+				},
+				{
+					"command": "dxFileExplorer.copyFileDxid",
+					"when": "view == dxFileExplorer && viewItem == file",
+					"group": "1_copy"
+				},
+				{
+					"command": "dxFileExplorer.describeFile",
+					"when": "view == dxFileExplorer && viewItem == file",
+					"group": "1_copy"
+				},
+				{
+					"command": "dxFileExplorer.previewFile",
+					"when": "view == dxFileExplorer && viewItem == file",
+					"group": "1_copy"
+				},
+				{
+					"command": "dxFileExplorer.mkdir",
+					"when": "view == dxFileExplorer",
+					"group": "2_creation@1"
+				},
+				{
+					"command": "dxFileExplorer.mkdir",
+					"when": "view == dxFileExplorer && viewItem == directory",
+					"group": "2_creation@1"
+				},
+				{
+					"command": "dxFileExplorer.deleteItems",
+					"when": "view == dxFileExplorer",
+					"group": "3_delete"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"lint": "eslint"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9.27.0",
+		"@stylistic/eslint-plugin": "^4.2.0",
+		"@types/node": "^20",
+		"@types/vscode": "^1.74.0",
+		"eslint": "^9.27.0",
+		"typescript": "^5.8.3",
+		"typescript-eslint": "^8.32.1"
+	},
+	"dependencies": {
+		"axios": "^1.9.0",
+		"zod": "^3.25.17"
+	}
+}
