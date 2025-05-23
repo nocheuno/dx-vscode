@@ -5,6 +5,7 @@ import { ProjectManager } from './services/projectManager';
 import { ProjectSelector } from './projectSelector';
 import { DxFileExplorer } from './dxFileExplorer';
 import { DxJobExplorer } from './dxJobExplorer';
+import { SessionManager } from './services/sessionManager'; // Add this line
 
 // Create a shared status bar item for DNAnexus operations
 export const dxStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
@@ -16,6 +17,10 @@ export function activate(context: vscode.ExtensionContext) {
 	dxStatusBarItem.command = 'dx-vscode.checkEnvironment';
 	dxStatusBarItem.show();
 	context.subscriptions.push(dxStatusBarItem);
+
+	// Initialize SessionManager
+	const sessionManager = new SessionManager();
+	context.subscriptions.push(sessionManager);
 	
 	// Add command to check environment
 	const checkEnvCmd = vscode.commands.registerCommand('dx-vscode.checkEnvironment', () => {
