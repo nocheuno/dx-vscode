@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { DxCli } from '../dxCli';
 import { DxNode } from '../dxNode';
-// import { allowedExtensions } from './extens';
 
 export class DxFileOperations {
     // Current active project ID
@@ -189,6 +188,58 @@ export class DxFileOperations {
             return true;
         } catch (error) {
             vscode.window.showErrorMessage(`Failed to create folder: ${error}`);
+            return false;
+        }
+    }
+
+    public async renameFile(node: DxNode, newName: string): Promise<boolean> {
+        if (!newName || newName.trim() === '') {
+            vscode.window.showErrorMessage(`New ${node.isDirectory ? 'folder' : 'file'} name cannot be empty.`);
+            return false;
+        }
+
+        if (newName.includes('/')) {
+            vscode.window.showErrorMessage(`New ${node.isDirectory ? 'folder' : 'file'} name cannot contain path separators (/).`);
+            return false;
+        }
+
+        const oldName = node.label;
+        if (newName === oldName) {
+            vscode.window.showInformationMessage('New name is the same as the current name. No changes made.');
+            return false;
+        }
+
+        const confirmMessage = `Are you sure you want to rename ${node.isDirectory ? 'folder' : 'file'} "${oldName}" to "${newName}"?`;
+        const confirmed = await vscode.window.showWarningMessage(
+            confirmMessage,
+            { modal: true },
+            'Rename'
+        );
+
+        if (confirmed !== 'Rename') {
+            return false;
+        }
+
+        try {
+            // Await the vscode.window.withProgress to ensure the operation completes
+            // before this function returns.
+            await vscode.window.withProgress({
+                location: vscode.ProgressLocation.Notification,
+                title: `Renaming ${node.isDirectory ? 'folder' : 'file'} ${oldName} to ${newName}`,
+                cancellable: false
+            }, async (progress) => {
+                progress.report({ increment: 0, message: 'Starting rename...' });
+                // Use dx mv <object_id> <new_name>
+                // This command works for both files and folders when providing the object ID and a new name.
+                // It renames the item in its current location.
+                const args = ['mv', node.id, newName];
+                await this.dxCli.callDxCli(args);
+                progress.report({ increment: 100, message: 'Rename complete' });
+                vscode.window.showInformationMessage(`Successfully renamed ${node.isDirectory ? 'folder' : 'file'} "${oldName}" to "${newName}".`);
+            });
+            return true;
+        } catch (error) {
+            vscode.window.showErrorMessage(`Rename failed: ${error}`);
             return false;
         }
     }

@@ -251,14 +251,25 @@
 					"light": "resources/light/document.svg",
 					"dark": "resources/dark/document.svg"
 				}
-			},				{
-					"command": "dxFileExplorer.previewFile",
-					"title": "Download and Preview",
-					"icon": {
-						"light": "resources/light/play.svg",
-						"dark": "resources/dark/play.svg"
-					}
+			},
+			{
+				"command": "dxFileExplorer.previewFile",
+				"title": "Download and Preview",
+				"icon": {
+					"light": "resources/light/play.svg",
+					"dark": "resources/dark/play.svg"
 				}
+			},
+			{
+				"command": "dx-vscode.renameFile",
+				"title": "Rename File",
+				"category": "DNAnexus"
+			},
+			{
+				"command": "dx-vscode.renameFolder",
+				"title": "Rename Folder",
+				"category": "DNAnexus"
+			}
 		],
 		"menus": {
 			"explorer/context": [
@@ -392,6 +403,16 @@
 					"command": "dxFileExplorer.deleteItems",
 					"when": "view == dxFileExplorer",
 					"group": "3_delete"
+				},
+				{
+					"command": "dx-vscode.renameFile",
+					"when": "view == dxFileExplorer && viewItem == file",
+					"group": "navigation@3"
+				},
+				{
+					"command": "dx-vscode.renameFolder",
+					"when": "view == dxFileExplorer && viewItem == folder",
+					"group": "navigation@3"
 				}
 			]
 		}

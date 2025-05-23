@@ -112,15 +112,10 @@ export class DxJobExplorer implements vscode.TreeDataProvider<DxJobNode> {
   /**
    * Refresh the job explorer
    */
-  public async refresh(projectId?: string): Promise<void> {
-    console.log('DxJobExplorer: Refreshing');
+  public async refresh(): Promise<void> {
+    console.log('DxJobExplorer: Refreshing based on current active project from ProjectManager');
     
-    // If projectId is provided, set it as the active project
-    if (projectId) {
-      await this.setActiveProject(projectId);
-      return; // The onProjectChanged event will trigger a refresh
-    }
-    
+    // loadJobs will internally use the active project from projectManager
     await this.loadJobs();
     this._onDidChangeTreeData.fire();
   }

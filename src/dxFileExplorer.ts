@@ -21,6 +21,7 @@ export class DxFileExplorer implements vscode.TreeDataProvider<DxNode>, vscode.T
     private fileOperations: DxFileOperations;
     private fileOpener: DxFileOpener;
     private disposables: vscode.Disposable[] = [];
+    private view: vscode.TreeView<DxNode>; // Store the view to access selection
     
     // DX CLI instance
     private dxCli: DxCli;
@@ -44,7 +45,7 @@ export class DxFileExplorer implements vscode.TreeDataProvider<DxNode>, vscode.T
 
         // Initialize service instances
         this.treeDataProvider = new DxTreeDataProvider(this.dxCli);
-        this.dragAndDropController = new DxDragAndDropController(this.dxCli, (projectId) => this.refresh(projectId));
+        this.dragAndDropController = new DxDragAndDropController(this.dxCli, () => this.refresh());
         this.fileOperations = new DxFileOperations(this.dxCli);
         this.fileOpener = new DxFileOpener(this.dxCli);
         
@@ -60,7 +61,7 @@ export class DxFileExplorer implements vscode.TreeDataProvider<DxNode>, vscode.T
         
         // Register commands and store disposables
         this.disposables.push(
-            vscode.commands.registerCommand('dxFileExplorer.refresh', (projectId?: string) => this.refresh(projectId)),
+            vscode.commands.registerCommand('dxFileExplorer.refresh', () => this.refresh()),
             vscode.commands.registerCommand('dxFileExplorer.copyFileDxid', (node: DxNode) => this.copyFileDxid(node)),
             vscode.commands.registerCommand('dxFileExplorer.deleteItems', (node: DxNode) => this.deleteItem(node)),
             vscode.commands.registerCommand('dxFileExplorer.mkdir', (node: DxNode) => this.createFolder(node)),
@@ -69,7 +70,7 @@ export class DxFileExplorer implements vscode.TreeDataProvider<DxNode>, vscode.T
         );
         
         // Create the treeview in the Explorer
-        const view = vscode.window.createTreeView('dxFileExplorer', { 
+        this.view = vscode.window.createTreeView('dxFileExplorer', { 
             treeDataProvider: this, 
             showCollapseAll: true, 
             canSelectMany: true, 
@@ -77,7 +78,7 @@ export class DxFileExplorer implements vscode.TreeDataProvider<DxNode>, vscode.T
         });
         
         // Add view to disposables
-        this.disposables.push(view);
+        this.disposables.push(this.view);
         
         // Subscribe to project changes from ProjectManager
         this.disposables.push(
@@ -112,10 +113,7 @@ export class DxFileExplorer implements vscode.TreeDataProvider<DxNode>, vscode.T
     /**
      * Refreshes the file explorer
      */
-    public async refresh(projectId?: string): Promise<void> {
-        if (projectId) {
-            await this.setActiveProject(projectId);
-        }
+    public async refresh(): Promise<void> {
         this._onDidChangeTreeData.fire();
     }
     
@@ -417,5 +415,15 @@ export class DxFileExplorer implements vscode.TreeDataProvider<DxNode>, vscode.T
     async handleDrop(target: DxNode | undefined, dataTransfer: vscode.DataTransfer, token: vscode.CancellationToken): Promise<void> {
         const activeProjectId = this.projectManager.getActiveProject();
         return this.dragAndDropController.handleDrop(target, dataTransfer, token, activeProjectId);
+    }
+
+    /**
+     * Get the first selected node from the tree view
+     */
+    public getSelectedNode(): DxNode | undefined {
+        if (this.view.selection && this.view.selection.length > 0) {
+            return this.view.selection[0];
+        }
+        return undefined;
     }
 }

@@ -1,6 +1,6 @@
 import { spawn } from 'child_process';
 import * as vscode from 'vscode';
-import { dxStatusBarItem } from '../extension';
+import { dxStatusBarItem } from '../statusBar';
 import * as fs from 'fs';
 import * as path from 'path';
 
