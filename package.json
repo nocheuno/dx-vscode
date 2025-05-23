@@ -68,6 +68,12 @@
 					"name": "DNAnexus Apps",
 					"icon": "media/dep.svg",
 					"contextualTitle": "DNAnexus Apps"
+				},
+				{
+					"id": "dxFileDetailsExplorer",
+					"name": "File Details",
+					"icon": "resources/light/document.svg",
+					"contextualTitle": "File Details"
 				}
 			],
 			"package-explorer": [
@@ -269,6 +275,22 @@
 				"command": "dx-vscode.renameFolder",
 				"title": "Rename Folder",
 				"category": "DNAnexus"
+			},
+			{
+				"command": "dxFileDetailsExplorer.refresh",
+				"title": "Refresh Details",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "dxFileDetailsExplorer.clear",
+				"title": "Clear Details",
+				"icon": {
+					"light": "resources/light/x.svg",
+					"dark": "resources/dark/x.svg"
+				}
 			}
 		],
 		"menus": {
@@ -310,6 +332,16 @@
 				{
 					"command": "dxAppExplorer.refresh",
 					"when": "view == dxAppExplorer",
+					"group": "navigation"
+				},
+				{
+					"command": "dxFileDetailsExplorer.refresh",
+					"when": "view == dxFileDetailsExplorer",
+					"group": "navigation"
+				},
+				{
+					"command": "dxFileDetailsExplorer.clear",
+					"when": "view == dxFileDetailsExplorer",
 					"group": "navigation"
 				}
 			],

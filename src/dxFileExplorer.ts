@@ -29,6 +29,9 @@ export class DxFileExplorer implements vscode.TreeDataProvider<DxNode>, vscode.T
     // Project manager
     private projectManager: ProjectManager;
 
+    // File details explorer reference
+    private fileDetailsExplorer: any = null;
+
     // Event emitter for tracking tree data changes
     private _onDidChangeTreeData: vscode.EventEmitter<DxNode | undefined | null | void> = new vscode.EventEmitter<DxNode | undefined | null | void>();
     readonly onDidChangeTreeData: vscode.Event<DxNode | undefined | null | void> = this._onDidChangeTreeData.event;
@@ -66,6 +69,7 @@ export class DxFileExplorer implements vscode.TreeDataProvider<DxNode>, vscode.T
             vscode.commands.registerCommand('dxFileExplorer.deleteItems', (node: DxNode) => this.deleteItem(node)),
             vscode.commands.registerCommand('dxFileExplorer.mkdir', (node: DxNode) => this.createFolder(node)),
             vscode.commands.registerCommand('dxFileExplorer.describeFile', (node: DxNode) => this.describeFile(node)),
+            vscode.commands.registerCommand('dxFileExplorer.selectFile', (node: DxNode) => this.selectFile(node)),
             vscode.commands.registerCommand('dxFileExplorer.previewFile', (node: DxNode) => this.previewFile(node))
         );
         
@@ -376,8 +380,8 @@ export class DxFileExplorer implements vscode.TreeDataProvider<DxNode>, vscode.T
             }
             
             treeItem.command = {
-                command: 'dxFileExplorer.describeFile',
-                title: 'Describe File',
+                command: 'dxFileExplorer.selectFile',
+                title: 'Select File',
                 arguments: [element]
             };
         }
@@ -433,5 +437,21 @@ export class DxFileExplorer implements vscode.TreeDataProvider<DxNode>, vscode.T
             return this.view.selection[0];
         }
         return undefined;
+    }
+
+    /**
+     * Set the file details explorer reference
+     */
+    public setFileDetailsExplorer(fileDetailsExplorer: any): void {
+        this.fileDetailsExplorer = fileDetailsExplorer;
+    }
+
+    /**
+     * Handle file selection - update the file details explorer
+     */
+    private async selectFile(node: DxNode): Promise<void> {
+        if (this.fileDetailsExplorer && !node.isDirectory) {
+            await this.fileDetailsExplorer.setSelectedFile(node);
+        }
     }
 }

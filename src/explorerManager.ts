@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { DxFileExplorer } from './dxFileExplorer';
 import { DxJobExplorer } from './dxJobExplorer';
+import { DxFileDetailsExplorer } from './dxFileDetailsExplorer';
 import { DxFileOperations } from './services/dxFileOperations';
 import { DxCli } from './dxCli';
 import { DxNode } from './dxNode';
@@ -12,11 +13,15 @@ export function initializeExplorers(context: vscode.ExtensionContext) {
         const fileOperations = new DxFileOperations(dxCli, dxCli.uploader, dxCli.directoryManager); // Pass uploader and directoryManager
         const fileExplorer = new DxFileExplorer(context);
         const jobExplorer = new DxJobExplorer(context);
+        const fileDetailsExplorer = new DxFileDetailsExplorer(context);
+
+        // Connect file explorer to file details explorer
+        fileExplorer.setFileDetailsExplorer(fileDetailsExplorer);
 
         registerFileCommands(context, fileExplorer, fileOperations);
         registerFolderCommands(context, fileExplorer, fileOperations); // Corrected: registerFolderCommands
 
-        context.subscriptions.push(fileExplorer, jobExplorer);
+        context.subscriptions.push(fileExplorer, jobExplorer, fileDetailsExplorer);
 
         const projectManager = ProjectManager.getInstance();
         const activeProjectId = projectManager.getActiveProject();
