@@ -9,7 +9,7 @@ import { ProjectManager } from './services/projectManager';
 export function initializeExplorers(context: vscode.ExtensionContext) {
     try {
         const dxCli = new DxCli(context.extensionPath);
-        const fileOperations = new DxFileOperations(dxCli);
+        const fileOperations = new DxFileOperations(dxCli, dxCli.uploader, dxCli.directoryManager); // Pass uploader and directoryManager
         const fileExplorer = new DxFileExplorer(context);
         const jobExplorer = new DxJobExplorer(context);
 

@@ -4,8 +4,8 @@ import { DxDirectory } from './services/dxDirectory';
 
 export class DxCli {
   private process: DxProcess;
-  private uploader: DxUpload;
-  private directoryManager: DxDirectory;
+  public uploader: DxUpload;
+  public directoryManager: DxDirectory;
 
   constructor(workspacePath: string, defaultParams = '') {
     this.process = new DxProcess(workspacePath, defaultParams);
@@ -28,15 +28,6 @@ export class DxCli {
 
   public async callDxCli(args: string[], options: { input?: string } = {}): Promise<any> {
     return this.process.callDxCli(args, options);
-  }
-
-  public async uploadFiles(
-    filePaths: string[],
-    projectId?: string,
-    folderPath?: string,
-    options?: { threads?: number; chunksize?: number; showProgress?: boolean }
-  ): Promise<void> {
-    return this.uploader.uploadFiles(filePaths, projectId, folderPath, options);
   }
 
   public async deleteRemoteDirectory(

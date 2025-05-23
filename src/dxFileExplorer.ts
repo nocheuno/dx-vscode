@@ -13,7 +13,7 @@ import { ProjectManager } from './services/projectManager';
 export class DxFileExplorer implements vscode.TreeDataProvider<DxNode>, vscode.TreeDragAndDropController<DxNode>, vscode.Disposable {
     // Define MIME types for drag and drop operations
     dropMimeTypes = ['application/vnd.code.tree.dxFileExplorer', 'text/uri-list'];
-    dragMimeTypes = ['text/uri-list'];
+    dragMimeTypes = ['application/vnd.code.tree.dxFileExplorer', 'text/uri-list'];
 
     // Service instances
     private treeDataProvider: DxTreeDataProvider;
@@ -45,8 +45,8 @@ export class DxFileExplorer implements vscode.TreeDataProvider<DxNode>, vscode.T
 
         // Initialize service instances
         this.treeDataProvider = new DxTreeDataProvider(this.dxCli);
-        this.dragAndDropController = new DxDragAndDropController(this.dxCli, () => this.refresh());
-        this.fileOperations = new DxFileOperations(this.dxCli);
+        this.fileOperations = new DxFileOperations(this.dxCli, this.dxCli.uploader, this.dxCli.directoryManager);
+        this.dragAndDropController = new DxDragAndDropController(this.dxCli, () => this.refresh(), this.fileOperations);
         this.fileOpener = new DxFileOpener(this.dxCli);
         
         // Get ProjectManager instance
@@ -405,8 +405,10 @@ export class DxFileExplorer implements vscode.TreeDataProvider<DxNode>, vscode.T
     /**
      * Handle drag
      */
-    handleDrag(source: readonly DxNode[], dataTransfer: vscode.DataTransfer, token: vscode.CancellationToken): void {
-        this.dragAndDropController.handleDrag(source, dataTransfer, token);
+    handleDrag(source: readonly DxNode[], dataTransfer: vscode.DataTransfer): void {
+        dataTransfer.set('application/vnd.code.tree.dxFileExplorer', new vscode.DataTransferItem(source));
+        // Pass to the dedicated drag and drop controller if further specific handling is needed for other MIME types or scenarios
+        // this.dragAndDropController.handleDrag(source, dataTransfer, token);
     }
 
     /**
@@ -414,7 +416,13 @@ export class DxFileExplorer implements vscode.TreeDataProvider<DxNode>, vscode.T
      */
     async handleDrop(target: DxNode | undefined, dataTransfer: vscode.DataTransfer, token: vscode.CancellationToken): Promise<void> {
         const activeProjectId = this.projectManager.getActiveProject();
-        return this.dragAndDropController.handleDrop(target, dataTransfer, token, activeProjectId);
+        // Get the source nodes from the dataTransfer if it's an internal drag
+        const transferItem = dataTransfer.get('application/vnd.code.tree.dxFileExplorer');
+        let sourceNodes: DxNode[] | undefined;
+        if (transferItem) {
+            sourceNodes = transferItem.value;
+        }
+        return this.dragAndDropController.handleDrop(target, dataTransfer, token, activeProjectId, sourceNodes);
     }
 
     /**

@@ -2,12 +2,19 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { DxCli } from '../dxCli';
 import { DxNode } from '../dxNode';
+import { DxUpload } from './dxUpload';
+import { DxDirectory } from './dxDirectory';
 
 export class DxFileOperations {
     // Current active project ID
     private activeProjectId: string | undefined;
+    private uploader: DxUpload;
+    private directoryManager: DxDirectory;
     
-    constructor(private dxCli: DxCli) {}
+    constructor(private dxCli: DxCli, uploader: DxUpload, directoryManager: DxDirectory) {
+        this.uploader = uploader;
+        this.directoryManager = directoryManager;
+    }
     
     // Set the active project ID
     public setActiveProjectId(projectId: string | undefined): void {
@@ -55,7 +62,7 @@ export class DxFileOperations {
             }, async (progress) => {
                 try {
                     progress.report({ increment: 0, message: 'Starting upload...' });
-                    await this.dxCli.uploadFiles([filePath], this.activeProjectId, selectedFolder, { showProgress: true });
+                    await this.uploadFiles([filePath], this.activeProjectId, selectedFolder, { showProgress: true });
                     progress.report({ increment: 100, message: 'Upload complete' });
                     vscode.window.showInformationMessage(`Successfully uploaded ${fileName}`);
                 } catch (error) {
@@ -243,6 +250,47 @@ export class DxFileOperations {
             return false;
         }
     }
+
+    public async moveFiles(
+        sourcePaths: string[],
+        targetPath: string,
+        projectId?: string,
+        options?: { createParents?: boolean }
+      ): Promise<void> {
+        const args = ['mv'];
+        if (options?.createParents) {
+          args.push('--parents');
+        }
+    
+        let finalTargetPath = targetPath;
+        // Ensure directory target paths end with a slash for dx mv,
+        // but only if it's not already the root path "/"
+        if (finalTargetPath !== '/' && !finalTargetPath.endsWith('/')) {
+          finalTargetPath += '/';
+        }
+    
+        if (projectId) {
+          sourcePaths.forEach(sourcePath => {
+            args.push(`${projectId}:${sourcePath}`);
+          });
+          args.push(`${projectId}:${finalTargetPath}`);
+        } else {
+          sourcePaths.forEach(sourcePath => {
+            args.push(sourcePath);
+          });
+          args.push(finalTargetPath);
+        }
+        await this.dxCli.callDxCli(args);
+      }
+    
+      public async uploadFiles(
+        filePaths: string[],
+        projectId?: string,
+        folderPath?: string,
+        options?: { threads?: number; chunksize?: number; showProgress?: boolean }
+      ): Promise<void> {
+        return this.uploader.uploadFiles(filePaths, projectId, folderPath, options);
+      }
 
     private async getDirectories(): Promise<string[]> {
         if (!this.activeProjectId) {
